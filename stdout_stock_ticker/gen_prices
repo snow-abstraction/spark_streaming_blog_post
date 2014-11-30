@@ -23,6 +23,11 @@ def get_cmd_line_args_parser():
 
 def parse_instruments_strs(ins_strs):
     instruments = {}
+    # hack around http://bugs.python.org/issue16399 where the bad behavior
+    # is the default isn't replaced but instead appended to.
+    if 1 < len(ins_strs):
+        ins_strs = ins_strs[1:]
+
     for ins_str in ins_strs:
         try:
             ins_id, mean, std_dev = tuple(ins_str.split(','))
