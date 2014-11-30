@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+import sys
+import random
+import argparse
+import time
+
+def get_cmd_line_args_parser():
+    parser = argparse.ArgumentParser(description=
+        ("Print random pairs constisting an integer and a double"
+         "representing, reps. an instrument id and a price."))
+    parser.add_argument("--instrument", "-i", action="append", help=
+       ("comma separated triplet of insturment id, price mean, price standard"
+        " deviation as int,float,float."),
+                        default=["1,100.0,5.0"])
+    parser.add_argument('--delay_mean', type=float,
+                        help='mean delay in ms between price updates',
+                        default = 500)
+    parser.add_argument('--delay_std', type=float,
+                        help='standard deviation in delay', default = 0.1)
+    return parser
+
+
+def parse_instruments_strs(ins_strs):
+    instruments = {}
+    for ins_str in ins_strs:
+        try:
+            ins_id, mean, std_dev = tuple(ins_str.split(','))
+            ins_id = int(ins_id)
+            if ins_id in instruments:
+                raise RuntimeError("Duplicate instrument ids are not allowed.")
+
+            instruments[ins_id] = (float(mean), float(std_dev))
+        except Exception as e:
+            raise RuntimeError("Failed to parse instrument strings: "
+                                 + str(e))
+    return instruments
+
+
+def delay(mu_ms, sigma):
+    delay_ms = abs(random.gauss(mu_ms, sigma))
+    time.sleep(delay_ms / 1000.0)
+
+
+def main():
+    parser = get_cmd_line_args_parser()
+    args = parser.parse_args(sys.argv[1:])
+    instruments = parse_instruments_strs(args.instrument)
+
+    while True:
+        for (ins_id, (mu, sigma)) in instruments.iteritems():
+            price = abs(random.gauss(mu, sigma))
+            print "{0}, {1}".format(ins_id, price)
+            sys.stdout.flush() # flush before thread gets suspended
+            delay(args.delay_mean, args.delay_std)
+
+if __name__ == "__main__":
+    main()
+
