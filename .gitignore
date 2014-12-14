@@ -1,5 +1,5 @@
-PriceAggregator/target/*
-PriceAggregator/project/*
-PriceAggregator/checkpoints/*
+*/PriceAggregator/target/*
+*/PriceAggregator/project/*
+*/PriceAggregator/checkpoints/*
 *.*~
 
