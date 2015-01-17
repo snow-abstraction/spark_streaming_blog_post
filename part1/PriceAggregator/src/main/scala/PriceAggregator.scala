@@ -19,9 +19,11 @@ object PriceAggregator {
     val idAndPriceStrs = lines.map(_.split(","))
     val idAndPricesStream = 
       idAndPriceStrs.map(x => (x(0).toInt, x(1).toDouble))
-
+    
+    // more real-world code should probably window operations instead
     val idAndPricesState = 
       idAndPricesStream.updateStateByKey[Double](dropOldForFirstNewPrice)
+
     idAndPricesState.print()
     ssc.start()
     ssc.awaitTermination()
