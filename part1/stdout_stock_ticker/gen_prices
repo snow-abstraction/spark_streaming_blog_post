@@ -2,22 +2,25 @@
 
 import sys
 import random
+random.seed(1)
 import argparse
 import time
 
 def get_cmd_line_args_parser():
     parser = argparse.ArgumentParser(description=
-        ("Print random pairs constisting an integer and a double"
-         "representing, reps. an instrument id and a price."))
+       ("Repeatedly print random pairs constisting an integer and a double"
+        " representing, reps. an instrument id and a price. The instrument"
+        " for the next price update is chosen randomly. Between updates the"
+        " the program sleeps for a random delay duration (absolute value of"
+        "  a Guassian random number)"))
     parser.add_argument("--instrument", "-i", action="append", help=
        ("comma separated triplet of insturment id, price mean, price standard"
         " deviation as int,float,float."),
                         default=["1,100.0,5.0"])
-    parser.add_argument('--delay_mean', type=float,
-                        help='mean delay in ms between price updates',
+    parser.add_argument("--delay_mean", type=float, help="mean delay in ms",
                         default = 500)
-    parser.add_argument('--delay_std', type=float,
-                        help='standard deviation in delay', default = 0.1)
+    parser.add_argument("--delay_std", type=float,
+                        help="standard deviation in delay", default = 0.1)
     return parser
 
 
@@ -50,14 +53,14 @@ def delay(mu_ms, sigma):
 def main():
     parser = get_cmd_line_args_parser()
     args = parser.parse_args(sys.argv[1:])
-    instruments = parse_instruments_strs(args.instrument)
+    instruments = parse_instruments_strs(args.instrument).items()
 
     while True:
-        for (ins_id, (mu, sigma)) in instruments.iteritems():
-            price = abs(random.gauss(mu, sigma))
-            print "{0}, {1}".format(ins_id, price)
-            sys.stdout.flush() # flush before thread gets suspended
-            delay(args.delay_mean, args.delay_std)
+        (ins_id, (mu, sigma)) = random.choice(instruments)
+        price = abs(random.gauss(mu, sigma))
+        print "{0}, {1}".format(ins_id, price)
+        sys.stdout.flush() # flush before thread gets suspended
+        delay(args.delay_mean, args.delay_std)
 
 if __name__ == "__main__":
     main()
